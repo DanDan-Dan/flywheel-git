@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
-    
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.MotorSetPoint;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
@@ -9,22 +11,24 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 public class Flywheel extends SubsystemBase {
-    private SparkPIDController pid;
-    private  CANSparkMax FlywheelMotor1;
-    private  CANSparkMax FlywheelMotor2;
-    private  CANSparkMax FlywheelMotor3;
-    private  RelativeEncoder encoder;
-  /** Creates a new ExampleSubsystem. */
+  private SparkPIDController pid;
+  private CANSparkMax FlywheelMotor1;
+  private CANSparkMax FlywheelMotor2;
+  private CANSparkMax FlywheelMotor3;
+  private RelativeEncoder encoder;
+  private double motorSetPoint;
+
+  /** Creates a Subsystem. */
   public Flywheel() {
-    FlywheelMotor1 = new CANSparkMax (4, MotorType.kBrushless);
-    FlywheelMotor2 = new CANSparkMax (5, MotorType.kBrushless);
-    FlywheelMotor3 = new CANSparkMax (6, MotorType.kBrushless);
+    FlywheelMotor1 = new CANSparkMax(4, MotorType.kBrushless);
+    FlywheelMotor2 = new CANSparkMax(5, MotorType.kBrushless);
+    FlywheelMotor3 = new CANSparkMax(6, MotorType.kBrushless);
 
     // Reset motor controller to factory defaults
     FlywheelMotor1.restoreFactoryDefaults();
     FlywheelMotor2.restoreFactoryDefaults();
     FlywheelMotor3.restoreFactoryDefaults();
-    
+
     FlywheelMotor1.setIdleMode(IdleMode.kCoast);
     FlywheelMotor2.setIdleMode(IdleMode.kCoast);
     FlywheelMotor3.setIdleMode(IdleMode.kCoast);
@@ -32,6 +36,9 @@ public class Flywheel extends SubsystemBase {
     FlywheelMotor1.setInverted(false);
     FlywheelMotor2.setInverted(false);
     FlywheelMotor3.setInverted(false);
+    
+    FlywheelMotor2.follow(FlywheelMotor1);
+    FlywheelMotor3.follow(FlywheelMotor1);
 
     pid = FlywheelMotor1.getPIDController();
     encoder = FlywheelMotor1.getEncoder();
@@ -47,31 +54,36 @@ public class Flywheel extends SubsystemBase {
   }
 
   public void RunFullspeed() {
-    FlywheelMotor1.set(1.0);
-    FlywheelMotor2.set(1.0);
-    FlywheelMotor3.set(1.0);
-  }
-  public void Halfspeed (){
-    FlywheelMotor1.set(0.5);
-    FlywheelMotor2.set(0.5);
-    FlywheelMotor3.set(0.5);
-  }
-  public void Reverse (){
-    FlywheelMotor1.set(-0.5);
-    FlywheelMotor2.set(-0.5);
-    FlywheelMotor3.set(-0.5);
-  }
-  public void Stop(){
-    FlywheelMotor1.set(0);
-    FlywheelMotor2.set(0);
-    FlywheelMotor3.set(0);
-  }
-  
-    private void setFlyWheelVelocity( double velocity){
-    pid.setReference(velocity, ControlType.kVelocity);
-   }
+    motorSetPoint= MotorSetPoint.FLYWHEEL_FULL_SPEED;
+   setFlyWheelVelocity(motorSetPoint);
 
-   private boolean isFlywheelAtSrtpoint(){
-    return true;
-   }
+  }
+
+  public void Halfspeed() {
+    motorSetPoint= MotorSetPoint.FLYWHEEL_HALF_SPEED;
+   setFlyWheelVelocity(motorSetPoint);
+
+  }
+
+  public void Reverse() {
+    motorSetPoint= -MotorSetPoint.FLYWHEEL_FULL_SPEED;
+   setFlyWheelVelocity(motorSetPoint);
+
+  }
+
+  public void Stop() {
+    FlywheelMotor1.stopMotor();
+
+  }
+
+  private void setFlyWheelVelocity(double velocity) {
+    pid.setReference(velocity, ControlType.kVelocity);
+  }
+
+  private boolean isFlywheelAtSetpoint() {
+    double currentVelocity = encoder.getVelocity();
+    double tolerance= MotorSetPoint.FLYWHEEL_TOLERANCE;
+    boolean isFlywheelAtSetpoint= Math.abs(currentVelocity- motorSetPoint ) <= MotorSetPoint.FLYWHEEL_TOLERANCE;
+    return motorSetPoint == currentVelocity; 
+  }
 }

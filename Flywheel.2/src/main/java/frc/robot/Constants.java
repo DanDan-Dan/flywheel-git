@@ -16,8 +16,11 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
- public static class MotorSetPoint{
+ 
+  public static class MotorSetPoint{
  public static final double  FLYWHEEL_FULL_SPEED= 5000;
- public static final double  FLYWHEEL_HALF_SPEED= 5000;
+ public static final double  FLYWHEEL_HALF_SPEED= -25000;
+ public static final double  FLYWHEEL_TOLERANCE =10; 
+ 
 }
 }
