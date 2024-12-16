@@ -5,8 +5,8 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
-
+import frc.robot.commands.Prime_Shoot;
+import frc.robot.subsystems.Conveyor;
 import frc.robot.subsystems.Flywheel;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -43,7 +43,12 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-  private void configureBindings() {}
+  private void configureBindings() {
+    operatorController.a().onTrue(new Prime_Shoot(flywheel, conveyor));
+
+
+
+  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
